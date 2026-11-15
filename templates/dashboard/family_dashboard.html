@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Family Dashboard | Peace of Mind Care Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="fw-bold mb-0">{{ _t('nav_family') }}</h2>
+        <span class="badge bg-purple text-white px-3 py-1 rounded-pill" style="background-color: var(--purple-primary);">
+          Family Guardian Portal
+        </span>
+      </div>
+      <p class="text-muted mb-0">Peace of mind monitoring for family members: real-time updates on your loved one's wellness, medication doses, and nurse check-ins.</p>
+    </div>
+
+    <!-- Quick Call Caregiver / Trigger Emergency Button -->
+    <div class="d-flex gap-2">
+      <a href="tel:+919789054321" class="btn btn-outline-teal btn-sm">
+        <i class="bi bi-telephone-outbound me-1"></i> Call Caregiver
+      </a>
+      <button type="button" class="btn btn-outline-danger btn-sm" onclick="triggerEmergencySOS({{ patient.id }})">
+        <i class="bi bi-broadcast me-1"></i> Trigger Urgent SOS
+      </button>
+    </div>
+  </div>
+
+  <!-- Senior Wellness Hero Card -->
+  <div class="card card-healthcare p-4 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #faf5ff 100%);">
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-teal text-white d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 64px; height: 64px; background: var(--teal-primary);">
+          {{ patient.full_name[0] }}
+        </div>
+        <div>
+          <h3 class="fw-bold mb-1">{{ patient.full_name }}</h3>
+          <p class="text-muted mb-0">
+            Age: {{ patient.patient_profile.age }} &bull; Location: Chennai, India &bull; Attended by: <strong>Nurse Anitha</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="text-center p-3 bg-white rounded-3 border">
+          <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.72rem;">Wellness Index</small>
+          <span class="fs-4 fw-bold text-success"><i class="bi bi-check-circle-fill me-1"></i> Optimal</span>
+        </div>
+        <div class="text-center p-3 bg-white rounded-3 border">
+          <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.72rem;">Today's Adherence</small>
+          <span class="fs-4 fw-bold text-teal" style="color: var(--teal-primary);">{{ adherence_pct }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Metric Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+      <div class="kpi-card kpi-teal">
+        <div class="kpi-icon-box"><i class="bi bi-capsule"></i></div>
+        <div class="kpi-value">{{ today_taken_count }} / {{ today_total_doses }}</div>
+        <div class="kpi-label">Today's Doses Taken</div>
+        <small class="text-muted mt-2 d-block">{{ today_pending_count }} scheduled for later today</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="kpi-card kpi-sky">
+        <div class="kpi-icon-box"><i class="bi bi-heart-pulse"></i></div>
+        <div class="kpi-value" style="font-size: 1.6rem;">{{ latest_vital.systolic_bp }}/{{ latest_vital.diastolic_bp }}</div>
+        <div class="kpi-label">Latest Blood Pressure</div>
+        <small class="text-muted mt-2 d-block">Recorded {{ latest_vital.reading_date.strftime('%I:%M %p') }}</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="kpi-card kpi-mint">
+        <div class="kpi-icon-box"><i class="bi bi-droplet"></i></div>
+        <div class="kpi-value" style="font-size: 1.6rem;">{{ latest_vital.blood_glucose }} <small class="fs-6">mg/dL</small></div>
+        <div class="kpi-label">Blood Sugar ({{ latest_vital.glucose_type }})</div>
+        <small class="text-success mt-2 d-block"><i class="bi bi-check2"></i> Within geriatric target</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-icon-box"><i class="bi bi-calendar2-check"></i></div>
+        <div class="kpi-value" style="font-size: 1.35rem;">
+          {% if next_appointment %}{{ next_appointment.appointment_date.strftime('%b %d') }}{% else %}No Appt{% endif %}
+        </div>
+        <div class="kpi-label">Next Doctor Consultation</div>
+        <small class="text-muted mt-2 d-block text-truncate">
+          {% if next_appointment %}{{ next_appointment.doctor_name }}{% else %}Routine checks up to date{% endif %}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Medication Timeline & Recent Alerts -->
+  <div class="row g-4">
+    <!-- Today's Medication Timeline for Family -->
+    <div class="col-lg-7">
+      <div class="card card-healthcare h-100">
+        <div class="card-header-styled">
+          <h5 class="fw-bold mb-0">Today's Medication Care Timeline</h5>
+          <span class="badge bg-light text-dark border">{{ today_logs|length }} Doses Scheduled</span>
+        </div>
+        <div class="card-body p-4">
+          <div class="timeline position-relative ps-4" style="border-left: 2px solid #e2e8f0; margin-left: 10px;">
+            {% for log in today_logs %}
+              <div class="position-relative mb-4">
+                <span class="position-absolute translate-middle rounded-circle border border-white {% if log.status == 'taken' %}bg-success{% elif log.status == 'missed' %}bg-danger{% else %}bg-primary{% endif %}" style="left: -17px; top: 12px; width: 16px; height: 16px;"></span>
+                <div class="p-3 rounded-3 border bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold text-dark fs-6">{{ log.medication.name }} ({{ log.medication.dosage }})</span>
+                    {% if log.status == 'taken' %}
+                      <span class="badge-status badge-status-taken"><i class="bi bi-check-circle-fill"></i> Taken at {{ log.taken_at.strftime('%I:%M %p') if log.taken_at else log.scheduled_time }}</span>
+                    {% elif log.status == 'missed' %}
+                      <span class="badge-status badge-status-missed"><i class="bi bi-x-circle-fill"></i> Missed Alert</span>
+                    {% else %}
+                      <span class="badge-status badge-status-pending"><i class="bi bi-clock"></i> Scheduled for {{ log.scheduled_time }}</span>
+                    {% endif %}
+                  </div>
+                  <small class="text-muted d-block">{{ log.medication.instructions or 'Take with water.' }}</small>
+                  {% if log.notes %}
+                    <small class="text-teal d-block mt-1"><i class="bi bi-chat-left-dots me-1"></i>Caregiver Note: {{ log.notes }}</small>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family Notifications & Emergency Quick Contacts -->
+    <div class="col-lg-5">
+      <div class="card card-healthcare mb-4">
+        <div class="card-header-styled">
+          <h5 class="fw-bold mb-0">Recent Family Health Alerts</h5>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for notif in family_notifs %}
+              <li class="list-group-item p-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-bold text-dark">{{ notif.title }}</span>
+                  <small class="text-muted">{{ notif.created_at.strftime('%b %d') }}</small>
+                </div>
+                <p class="small text-muted mb-0">{{ notif.message }}</p>
+              </li>
+            {% else %}
+              <li class="list-group-item text-center p-4 text-muted">
+                No recent health alerts. Everything is on schedule!
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <!-- Quick Emergency Hotline Strip -->
+      <div class="card card-healthcare border-danger border-opacity-25 bg-danger bg-opacity-10 p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-telephone-plus-fill text-danger fs-3"></i>
+            <div>
+              <h6 class="fw-bold text-dark mb-0">Emergency Medical Helpline</h6>
+              <small class="text-muted">Ambulance: 108 &bull; Police/SOS: 112</small>
+            </div>
+          </div>
+          <a href="tel:108" class="btn btn-danger btn-sm px-3 fw-bold">Call 108</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In | Healthcare Portal Access{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+      <div class="card card-healthcare shadow-lg border-0">
+        <div class="card-body p-4 p-md-5">
+          <div class="text-center mb-4">
+            <div class="brand-logo-icon mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.8rem; background: linear-gradient(135deg, var(--teal-primary), var(--sky-primary)); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white;">
+              <i class="bi bi-heart-pulse-fill"></i>
+            </div>
+            <h3 class="fw-bold mb-1">Sign In to ElderCare 360</h3>
+            <p class="text-muted small">Access your personalized healthcare &amp; medication portal</p>
+          </div>
+
+          <form action="{{ url_for('login') }}" method="POST">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Username or Email *</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                <input type="text" name="username" class="form-control border-start-0" placeholder="e.g. ramalingam" required autofocus>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label fw-semibold mb-0">Password *</label>
+              </div>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                <input type="password" name="password" class="form-control border-start-0" placeholder="••••••••" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary-teal w-100 py-2 fw-semibold fs-6 mb-3">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+            </button>
+
+            <div class="text-center small text-muted">
+              Don't have an account? <a href="{{ url_for('register') }}" class="text-teal fw-semibold">Register New Account</a>
+            </div>
+          </form>
+
+          <hr class="my-4">
+
+          <!-- Instant Demo Accounts for Hackathon Judges -->
+          <div class="p-3 bg-light rounded-3 border">
+            <small class="fw-bold text-uppercase text-muted d-block mb-2 text-center">
+              <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Demo Logins (1-Click Access)
+            </small>
+            <div class="d-grid gap-2">
+              <a href="{{ url_for('quick_login', username='ramalingam') }}" class="btn btn-sm btn-outline-success text-start">
+                <i class="bi bi-person-fill me-1"></i> <strong>Senior Patient:</strong> Mr. S. Ramalingam (Age 74)
+              </a>
+              <a href="{{ url_for('quick_login', username='nurse_anitha') }}" class="btn btn-sm btn-outline-primary text-start">
+                <i class="bi bi-heart-pulse me-1"></i> <strong>Caregiver:</strong> Nurse Anitha R.
+              </a>
+              <a href="{{ url_for('quick_login', username='vijay_son') }}" class="btn btn-sm btn-outline-purple text-start" style="color: var(--purple-primary); border-color: var(--purple-primary);">
+                <i class="bi bi-people-fill me-1"></i> <strong>Family Member:</strong> Vijay Ramalingam
+              </a>
+              <a href="{{ url_for('quick_login', username='dr_subramanian') }}" class="btn btn-sm btn-outline-info text-start">
+                <i class="bi bi-hospital me-1"></i> <strong>Doctor:</strong> Dr. K. Subramanian, MD
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

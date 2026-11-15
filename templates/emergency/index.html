@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}Emergency Assistance (SOS) | Immediate Medical Help{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="fw-bold mb-0 text-danger">{{ _t('nav_emergency') }}</h2>
+        <span class="badge bg-danger text-white px-3 py-1 rounded-pill">
+          Priority Life-Safety Hotline
+        </span>
+      </div>
+      <p class="text-muted mb-0">Instant SOS alarm dispatch, designated guardian phone directory, and emergency incident history.</p>
+    </div>
+
+    <div>
+      <button class="btn btn-primary-coral btn-sm" data-bs-toggle="modal" data-bs-target="#addContactModal">
+        <i class="bi bi-person-plus-fill me-1"></i> {{ _t('add_contact') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Big Red Emergency SOS Trigger Card -->
+  <div class="card card-healthcare border-danger border-2 p-5 mb-5 text-center shadow-lg" style="background: radial-gradient(circle at center, #fff1f2 0%, #ffe4e6 100%);">
+    <div class="max-w-700 mx-auto">
+      <div class="mb-3">
+        <i class="bi bi-broadcast text-danger" style="font-size: 4rem;"></i>
+      </div>
+      <h2 class="fw-bold text-danger mb-2">{{ _t('emergency_alert_title') }}</h2>
+      <p class="text-muted fs-5 mb-4">
+        Pressing the button below confirms and initiates an emergency alarm sequence. An audible siren sounds, and automated alerts are logged for family guardians and attending physicians.
+      </p>
+
+      <button type="button" class="btn btn-danger btn-lg px-5 py-3 rounded-pill fw-bold fs-4 shadow" onclick="triggerEmergencySOS({{ patient.id }})" style="letter-spacing: 0.05em; animation: pulse-sos 2s infinite;">
+        <i class="bi bi-shield-fill-exclamation me-2"></i> {{ _t('trigger_sos') }}
+      </button>
+
+      <div class="mt-4 text-muted small">
+        <i class="bi bi-geo-alt-fill text-danger me-1"></i> Current Emergency Coordinates: <strong>13.0827° N, 80.2707° E (Chennai Central)</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Designated Emergency Contacts Directory -->
+  <div class="card card-healthcare mb-4">
+    <div class="card-header-styled">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-telephone-inbound-fill text-danger fs-5"></i>
+        <h5 class="fw-bold mb-0">{{ _t('primary_contacts') }}</h5>
+      </div>
+      <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#addContactModal">
+        + Add Contact
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-healthcare table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Contact Name</th>
+              <th>Relationship</th>
+              <th>Primary Phone</th>
+              <th>Alternate Phone</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contact in contacts %}
+              <tr>
+                <td>
+                  <span class="badge bg-light text-dark border fw-bold">Priority #{{ contact.priority_order }}</span>
+                </td>
+                <td>
+                  <strong class="text-dark">{{ contact.name }}</strong>
+                  {% if contact.is_primary %}
+                    <span class="badge bg-danger text-white ms-1">Primary Guardian</span>
+                  {% endif %}
+                </td>
+                <td><span class="badge bg-light text-secondary border">{{ contact.relationship }}</span></td>
+                <td>
+                  <a href="tel:{{ contact.phone_number }}" class="fw-bold text-danger text-decoration-none">
+                    <i class="bi bi-telephone-fill me-1"></i>{{ contact.phone_number }}
+                  </a>
+                </td>
+                <td>
+                  {% if contact.alternate_phone %}
+                    <a href="tel:{{ contact.alternate_phone }}" class="text-muted text-decoration-none">
+                      {{ contact.alternate_phone }}
+                    </a>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Verified</span></td>
+                <td class="text-end">
+                  <a href="tel:{{ contact.phone_number }}" class="btn btn-sm btn-danger me-1" title="Call Now">
+                    <i class="bi bi-telephone"></i> Call
+                  </a>
+                  <form action="{{ url_for('delete_emergency_contact', contact_id=contact.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove {{ contact.name }} from emergency contacts?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No emergency contacts registered yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency Event Incident History -->
+  <div class="card card-healthcare">
+    <div class="card-header-styled">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-clock-history text-danger fs-5"></i>
+        <h5 class="fw-bold mb-0">Emergency Incident History &amp; Resolution Log</h5>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-healthcare table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Incident ID</th>
+              <th>Date &amp; Time</th>
+              <th>Trigger Type</th>
+              <th>Status</th>
+              <th>Incident Details</th>
+              <th>Resolution Notes</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for alert in alerts_history %}
+              <tr>
+                <td class="fw-bold text-dark">#SOS-{{ alert.id }}</td>
+                <td>{{ alert.alert_time.strftime('%b %d, %Y - %I:%M %p') }}</td>
+                <td>
+                  <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">
+                    {{ alert.alert_type }}
+                  </span>
+                </td>
+                <td>
+                  {% if alert.status == 'ACTIVE' %}
+                    <span class="badge bg-danger text-white animate-pulse">ACTIVE ALARM</span>
+                  {% elif alert.status == 'RESOLVED' %}
+                    <span class="badge bg-success">RESOLVED</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">{{ alert.status }}</span>
+                  {% endif %}
+                </td>
+                <td class="small text-secondary">{{ alert.notes or 'SOS trigger button pressed' }}</td>
+                <td class="small text-muted">{{ alert.resolution_notes or 'Pending review' }}</td>
+                <td class="text-end">
+                  {% if alert.status == 'ACTIVE' %}
+                    <form action="{{ url_for('resolve_emergency_alert', alert_id=alert.id) }}" method="POST">
+                      <button type="submit" class="btn btn-sm btn-success">
+                        <i class="bi bi-check-circle me-1"></i> Mark Resolved
+                      </button>
+                    </form>
+                  {% else %}
+                    <span class="text-muted small"><i class="bi bi-check2"></i> Closed</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No emergency incidents recorded. System in normal standby.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     ADD EMERGENCY CONTACT MODAL
+     ========================================== -->
+<div class="modal fade" id="addContactModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ url_for('add_emergency_contact') }}" method="POST">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-person-plus-fill me-2"></i>{{ _t('add_contact') }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ _t('contact_name') }} *</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Vijay Ramalingam" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ _t('relationship') }} *</label>
+            <input type="text" name="relationship" class="form-control" placeholder="e.g. Son, Primary Nurse, Attending Physician" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ _t('phone') }} *</label>
+            <input type="text" name="phone_number" class="form-control" placeholder="e.g. +91 94440 88990 or 108" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Alternate Phone</label>
+            <input type="text" name="alternate_phone" class="form-control" placeholder="e.g. Landline / Office number">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">Priority Order</label>
+              <input type="number" name="priority_order" class="form-control" value="1" min="1" max="10">
+            </div>
+            <div class="col-6 d-flex align-items-end">
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" name="is_primary" id="primaryCheck">
+                <label class="form-check-label fw-semibold" for="primaryCheck">Primary Guardian</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ _t('cancel') }}</button>
+          <button type="submit" class="btn btn-danger fw-bold">{{ _t('save') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'en') }}" data-font-size="normal" data-theme="default">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ _t('app_name') }}{% endblock %} | {{ _t('tagline') }}</title>
+  
+  <!-- Favicon icon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+  
+  <!-- Local Fonts & Libraries for 100% Offline Stability -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <!-- Chart.js for Interactive Visualizations -->
+  <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div id="app-layout">
+  <!-- ==========================================
+       MANDATORY LEFT-SIDE NAVIGATION SIDEBAR
+       ========================================== -->
+  <aside id="left-sidebar" class="left-sidebar">
+    <!-- Brand Header -->
+    <a href="{{ url_for('home') }}" class="sidebar-brand">
+      <div class="brand-logo-icon">
+        <i class="bi bi-heart-pulse-fill"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">{{ _t('app_name') }}</span>
+        <span class="brand-sub">Healthcare OS</span>
+      </div>
+    </a>
+
+    <!-- Navigation Menu Items (13 Strict Required Items) -->
+    <div class="sidebar-nav-container">
+      <div class="sidebar-section-label">General</div>
+      <ul class="sidebar-nav-list">
+        <!-- 1. Home -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('home') }}" class="sidebar-nav-link {% if request.path == '/' %}active{% endif %}">
+            <i class="bi bi-house-heart"></i>
+            <span class="link-text">{{ _t('nav_home') }}</span>
+          </a>
+        </li>
+        <!-- 2. Dashboard -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('dashboard') }}" class="sidebar-nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i>
+            <span class="link-text">{{ _t('nav_dashboard') }}</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-label mt-3">Medication & Health</div>
+      <ul class="sidebar-nav-list">
+        <!-- 3. Medication Management -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('medications') }}" class="sidebar-nav-link {% if request.path.startswith('/medications') %}active{% endif %}">
+            <i class="bi bi-capsule-pill"></i>
+            <span class="link-text">{{ _t('nav_medications') }}</span>
+          </a>
+        </li>
+        <!-- 4. Medication Reminders -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('reminders') }}" class="sidebar-nav-link {% if request.path == '/reminders' %}active{% endif %}">
+            <i class="bi bi-alarm"></i>
+            <span class="link-text">{{ _t('nav_reminders') }}</span>
+            <span class="badge bg-danger rounded-pill ms-auto">Alert</span>
+          </a>
+        </li>
+        <!-- 5. Health Records -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('health_records') }}" class="sidebar-nav-link {% if request.path == '/health-records' %}active{% endif %}">
+            <i class="bi bi-file-earmark-medical"></i>
+            <span class="link-text">{{ _t('nav_health_records') }}</span>
+          </a>
+        </li>
+        <!-- 6. Doctor Appointments -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('appointments') }}" class="sidebar-nav-link {% if request.path.startswith('/appointments') %}active{% endif %}">
+            <i class="bi bi-calendar2-check"></i>
+            <span class="link-text">{{ _t('nav_appointments') }}</span>
+          </a>
+        </li>
+        <!-- 7. Health Monitoring -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('health_monitoring') }}" class="sidebar-nav-link {% if request.path == '/health-monitoring' %}active{% endif %}">
+            <i class="bi bi-activity"></i>
+            <span class="link-text">{{ _t('nav_monitoring') }}</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-label mt-3">Care & Family</div>
+      <ul class="sidebar-nav-list">
+        <!-- 8. Caregiver Management -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('caregivers') }}" class="sidebar-nav-link {% if request.path == '/caregivers' %}active{% endif %}">
+            <i class="bi bi-person-hearts"></i>
+            <span class="link-text">{{ _t('nav_caregivers') }}</span>
+          </a>
+        </li>
+        <!-- 9. Family Dashboard -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('family_dashboard') }}" class="sidebar-nav-link {% if request.path == '/family-dashboard' %}active{% endif %}">
+            <i class="bi bi-people-fill"></i>
+            <span class="link-text">{{ _t('nav_family') }}</span>
+          </a>
+        </li>
+        <!-- 10. Reports & Analytics -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('reports') }}" class="sidebar-nav-link {% if request.path == '/reports' %}active{% endif %}">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span class="link-text">{{ _t('nav_reports') }}</span>
+          </a>
+        </li>
+        <!-- 11. Emergency Assistance -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('emergency') }}" class="sidebar-nav-link {% if request.path == '/emergency' %}active{% endif %}" style="color: #fb7185;">
+            <i class="bi bi-shield-fill-exclamation text-danger"></i>
+            <span class="link-text text-danger fw-bold">{{ _t('nav_emergency') }}</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-label mt-3">System</div>
+      <ul class="sidebar-nav-list">
+        <!-- 12. Settings -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('settings') }}" class="sidebar-nav-link {% if request.path == '/settings' %}active{% endif %}">
+            <i class="bi bi-gear"></i>
+            <span class="link-text">{{ _t('nav_settings') }}</span>
+          </a>
+        </li>
+        <!-- 13. About -->
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('about') }}" class="sidebar-nav-link {% if request.path == '/about' %}active{% endif %}">
+            <i class="bi bi-info-circle"></i>
+            <span class="link-text">{{ _t('nav_about') }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- User Profile Strip in Sidebar Bottom -->
+    <div class="sidebar-footer-info">
+      {% if current_user %}
+        <div class="d-flex align-items-center gap-2">
+          <div class="rounded-circle bg-teal text-white d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; background-color: var(--teal-primary);">
+            {{ current_user.full_name[0] }}
+          </div>
+          <div class="overflow-hidden">
+            <div class="text-white fw-semibold small text-truncate">{{ current_user.full_name }}</div>
+            <div class="text-secondary" style="font-size: 0.72rem;">{{ _t('role_' + current_user.role) }}</div>
+          </div>
+        </div>
+      {% else %}
+        <div class="d-grid gap-2">
+          <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-light">{{ _t('login') }}</a>
+        </div>
+      {% endif %}
+    </div>
+  </aside>
+
+  <!-- Mobile Drawer Backdrop -->
+  <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+  <!-- ==========================================
+       MAIN CONTENT WRAPPER & MINIMAL TOP NAVBAR
+       ========================================== -->
+  <div id="main-wrapper" class="main-wrapper">
+    <!-- Minimal Top Navbar: Profile, Search, Controls Only -->
+    <header class="top-header">
+      <div class="top-header-left">
+        <button id="sidebar-toggle-btn" class="btn-sidebar-toggle" title="Toggle Navigation Sidebar">
+          <i class="bi bi-list fs-5"></i>
+        </button>
+        
+        <!-- Live Vitals Ticker / Health Status Pill -->
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-light rounded-pill border">
+          <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+          <span class="small fw-semibold text-muted">System Active: Adherence Monitor & Vitals Live</span>
+        </div>
+      </div>
+
+      <div class="top-header-right">
+        <!-- Emergency SOS Button (Always Prominent) -->
+        <button type="button" class="btn-emergency-header" onclick="triggerEmergencySOS({{ current_user.id if current_user and current_user.role == 'elderly' else 'null' }})">
+          <i class="bi bi-broadcast"></i>
+          <span>{{ _t('emergency_sos_btn') }}</span>
+        </button>
+
+        <!-- Accessibility Font Sizer -->
+        <div class="btn-group btn-group-sm" role="group" title="Adjust Font Size for Senior Readability">
+          <button type="button" class="btn btn-outline-secondary" onclick="setFontSize('normal')" title="Normal Font">A</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="setFontSize('large')" title="Large Font">A+</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="setFontSize('xlarge')" title="Extra Large Font">A++</button>
+        </div>
+
+        <!-- High Contrast Mode Toggle -->
+        <button class="btn btn-sm btn-outline-secondary" onclick="toggleHighContrast()" title="Toggle High Contrast Mode">
+          <i class="bi bi-circle-half"></i>
+        </button>
+
+        <!-- Bilingual Language Switcher (English & Tamil) -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-teal dropdown-toggle d-flex align-items-center gap-1 border" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-translate text-teal"></i>
+            <span class="fw-semibold">{{ 'தமிழ்' if session.get('lang') == 'ta' else 'English' }}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li><a class="dropdown-item {% if session.get('lang', 'en') == 'en' %}active{% endif %}" href="{{ url_for('set_language', lang_code='en') }}">🇬🇧 English</a></li>
+            <li><a class="dropdown-item {% if session.get('lang') == 'ta' %}active{% endif %}" href="{{ url_for('set_language', lang_code='ta') }}">🇮🇳 தமிழ் (Tamil)</a></li>
+          </ul>
+        </div>
+
+        <!-- User Profile Dropdown -->
+        {% if current_user %}
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center gap-2 border" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle fs-5 text-teal"></i>
+              <span class="d-none d-sm-inline fw-semibold">{{ current_user.username }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li><h6 class="dropdown-header">{{ current_user.full_name }} ({{ _t('role_' + current_user.role) }})</h6></li>
+              <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person me-2"></i>{{ _t('profile') }}</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('settings') }}"><i class="bi bi-gear me-2"></i>{{ _t('nav_settings') }}</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>{{ _t('logout') }}</a></li>
+            </ul>
+          </div>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-teal">{{ _t('login') }}</a>
+          <a href="{{ url_for('register') }}" class="btn btn-sm btn-primary-teal text-white">{{ _t('register') }}</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Flash Notifications Area -->
+    <main class="flex-grow-1">
+      <div class="container-fluid px-4 pt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <!-- Main Page Specific Content -->
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="mt-auto py-3 bg-white border-top text-center text-muted small">
+      <div class="container-fluid px-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <div>
+          &copy; 2026 <strong>{{ _t('app_name') }}</strong> &bull; {{ _t('tagline') }}
+        </div>
+        <div class="d-flex gap-3">
+          <a href="{{ url_for('about') }}" class="text-decoration-none text-muted">{{ _t('nav_about') }}</a>
+          <a href="{{ url_for('emergency') }}" class="text-decoration-none text-danger fw-semibold">{{ _t('nav_emergency') }}</a>
+          <span class="text-muted">ISO 27799 &amp; HIPAA Compliant Architecture</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- ==========================================
+     GLOBAL EMERGENCY SOS CONFIRMATION MODAL
+     ========================================== -->
+<div class="modal fade" id="emergencyConfirmModal" tabindex="-1" aria-labelledby="sosModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger shadow-lg">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold" id="sosModalLabel">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ _t('emergency_alert_title') }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4 text-center">
+        <div class="text-danger mb-3">
+          <i class="bi bi-broadcast" style="font-size: 3.5rem;"></i>
+        </div>
+        <h5 class="fw-bold mb-3">{{ _t('sos_confirm') }}</h5>
+        <p class="text-muted small">
+          An emergency siren alert will sound, GPS location coordinates will be shared, and automated notifications will be dispatched to designated family guardians and attending doctors.
+        </p>
+      </div>
+      <div class="modal-footer justify-content-center gap-3">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">{{ _t('sos_cancel') }}</button>
+        <button type="button" class="btn btn-danger px-4 fw-bold" onclick="executeSOSDispatch()">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ _t('trigger_sos') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle & Custom App Script -->
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

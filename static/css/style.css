@@ -1,0 +1,702 @@
+/* ElderCare 360 - Premium Modern Healthcare Stylesheet */
+:root {
+  --teal-primary: #0d9488;
+  --teal-light: #14b8a6;
+  --teal-soft: #ccfbf1;
+  --teal-dark: #0f766e;
+  
+  --sky-primary: #0284c7;
+  --sky-light: #38bdf8;
+  --sky-soft: #e0f2fe;
+  
+  --mint-primary: #10b981;
+  --mint-light: #34d399;
+  --mint-soft: #d1fae5;
+  
+  --purple-primary: #8b5cf6;
+  --purple-light: #a78bfa;
+  --purple-soft: #ede9fe;
+  
+  --coral-primary: #f43f5e;
+  --coral-light: #fb7185;
+  --coral-soft: #ffe4e6;
+  
+  --bg-gradient-main: linear-gradient(135deg, #f0fdfa 0%, #f0f9ff 50%, #faf5ff 100%);
+  --sidebar-bg: #0f172a;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #0d9488;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 78px;
+  
+  --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --card-shadow-hover: 0 20px 30px -10px rgba(13, 148, 136, 0.15), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
+  --card-radius: 1rem;
+  --font-base-size: 16px;
+  --heading-font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --body-font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Accessibility: Font Scaling */
+html[data-font-size="normal"] { font-size: 16px; }
+html[data-font-size="large"] { font-size: 18.5px; }
+html[data-font-size="xlarge"] { font-size: 21px; }
+
+/* Accessibility: High Contrast Mode */
+html[data-theme="high-contrast"] {
+  --teal-primary: #005f56;
+  --sky-primary: #004c80;
+  --mint-primary: #046c4e;
+  --purple-primary: #5b21b6;
+  --coral-primary: #9f1239;
+  --bg-gradient-main: #ffffff;
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
+html[data-theme="high-contrast"] .card {
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+}
+
+body {
+  font-family: var(--body-font);
+  background: var(--bg-gradient-main);
+  min-height: 100vh;
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* -------------------------------------------------------------
+   LEFT SIDEBAR NAVIGATION (MANDATORY LEFT-SIDE ONLY)
+------------------------------------------------------------- */
+#app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.left-sidebar {
+  width: var(--sidebar-width);
+  background: #0f172a;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.left-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.left-sidebar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.sidebar-brand {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.sidebar-brand .brand-logo-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, var(--teal-primary), var(--sky-primary));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+}
+
+.sidebar-brand .brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand .brand-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.sidebar-brand .brand-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sidebar-nav-container {
+  padding: 1rem 0.75rem;
+  flex: 1;
+}
+
+.sidebar-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  padding: 0.5rem 0.75rem 0.25rem 0.75rem;
+}
+
+.sidebar-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav-item {
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sidebar-nav-link i {
+  font-size: 1.15rem;
+  width: 24px;
+  text-align: center;
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+
+.sidebar-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+}
+
+.sidebar-nav-link:hover i {
+  color: var(--teal-light);
+}
+
+.sidebar-nav-link.active {
+  background: linear-gradient(135deg, var(--teal-primary), var(--teal-dark));
+  color: #ffffff !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+}
+
+.sidebar-nav-link.active i {
+  color: #ffffff !important;
+}
+
+.sidebar-nav-link.active::after {
+  content: '';
+  position: absolute;
+  right: -0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 20px;
+  background: var(--sky-light);
+  border-radius: 4px 0 0 4px;
+}
+
+.sidebar-footer-info {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Collapsed sidebar */
+.left-sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.left-sidebar.collapsed .brand-text,
+.left-sidebar.collapsed .sidebar-section-label,
+.left-sidebar.collapsed .link-text,
+.left-sidebar.collapsed .badge,
+.left-sidebar.collapsed .sidebar-footer-info {
+  display: none !important;
+}
+
+.left-sidebar.collapsed .sidebar-nav-link {
+  justify-content: center;
+  padding: 0.75rem 0;
+}
+
+.left-sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+/* -------------------------------------------------------------
+   MAIN CONTENT WRAPPER
+------------------------------------------------------------- */
+.main-wrapper {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-wrapper.sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* TOP NAVBAR */
+.top-header {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 0.65rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-sidebar-toggle {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sidebar-toggle:hover {
+  background: #f1f5f9;
+  color: var(--teal-primary);
+}
+
+.top-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Emergency SOS Header Button */
+.btn-emergency-header {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  border: none;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  animation: pulse-sos 2s infinite;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+@keyframes pulse-sos {
+  0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+}
+
+/* -------------------------------------------------------------
+   MANDATORY BACKGROUND IMAGE HERO SECTION (HOME PAGE)
+------------------------------------------------------------- */
+.hero-healthcare-section {
+  position: relative;
+  min-height: 82vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Mandatory Real Colourful Healthcare Background Image */
+  background-image: 
+    linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(13, 148, 136, 0.72) 50%, rgba(2, 132, 199, 0.75) 100%),
+    url('/static/images/hero-healthcare.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  color: #ffffff;
+  padding: 5rem 1.5rem;
+  border-radius: 0 0 2rem 2rem;
+  overflow: hidden;
+  box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.35);
+}
+
+.hero-overlay-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 30%, rgba(20, 184, 166, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.25) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  text-align: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  padding: 0.4rem 1.1rem;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hero-title {
+  font-family: var(--heading-font);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero-title .text-highlight {
+  background: linear-gradient(135deg, #5eead4, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-lead {
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: #f1f5f9;
+  line-height: 1.6;
+  margin-bottom: 2.25rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.hero-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-stat-box {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 0.85rem 1.5rem;
+  border-radius: 1rem;
+  min-width: 160px;
+}
+
+.hero-stat-number {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #5eead4;
+}
+
+.hero-stat-label {
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* -------------------------------------------------------------
+   CARDS & CONTAINERS
+------------------------------------------------------------- */
+.card-healthcare {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+.card-healthcare:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.card-header-styled {
+  background: transparent;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Metric KPI Cards with Colourful Accents */
+.kpi-card {
+  padding: 1.4rem;
+  border-radius: var(--card-radius);
+  background: #ffffff;
+  box-shadow: var(--card-shadow);
+  border: 1px solid #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+}
+
+.kpi-card.kpi-teal::before { background: linear-gradient(90deg, var(--teal-primary), var(--teal-light)); }
+.kpi-card.kpi-sky::before { background: linear-gradient(90deg, var(--sky-primary), var(--sky-light)); }
+.kpi-card.kpi-mint::before { background: linear-gradient(90deg, var(--mint-primary), var(--mint-light)); }
+.kpi-card.kpi-purple::before { background: linear-gradient(90deg, var(--purple-primary), var(--purple-light)); }
+.kpi-card.kpi-coral::before { background: linear-gradient(90deg, var(--coral-primary), var(--coral-light)); }
+
+.kpi-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 0.85rem;
+}
+
+.kpi-teal .kpi-icon-box { background: var(--teal-soft); color: var(--teal-primary); }
+.kpi-sky .kpi-icon-box { background: var(--sky-soft); color: var(--sky-primary); }
+.kpi-mint .kpi-icon-box { background: var(--mint-soft); color: var(--mint-primary); }
+.kpi-purple .kpi-icon-box { background: var(--purple-soft); color: var(--purple-primary); }
+.kpi-coral .kpi-icon-box { background: var(--coral-soft); color: var(--coral-primary); }
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f172a;
+  margin-bottom: 0.35rem;
+  font-family: var(--heading-font);
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* -------------------------------------------------------------
+   BUTTONS & BADGES
+------------------------------------------------------------- */
+.btn-primary-teal {
+  background: linear-gradient(135deg, var(--teal-primary), var(--teal-dark));
+  color: #ffffff;
+  border: none;
+  border-radius: 0.65rem;
+  padding: 0.65rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-primary-teal:hover {
+  background: linear-gradient(135deg, var(--teal-light), var(--teal-primary));
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35);
+}
+
+.btn-primary-coral {
+  background: linear-gradient(135deg, var(--coral-primary), #e11d48);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.65rem;
+  padding: 0.65rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-primary-coral:hover {
+  background: linear-gradient(135deg, var(--coral-light), var(--coral-primary));
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Accessible big button for elderly */
+.btn-elderly-touch {
+  padding: 0.85rem 1.6rem;
+  font-size: 1.15rem;
+  border-radius: 0.85rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* Status Badges */
+.badge-status {
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.badge-status-taken { background: var(--mint-soft); color: var(--mint-primary); }
+.badge-status-pending { background: var(--sky-soft); color: var(--sky-primary); }
+.badge-status-missed { background: var(--coral-soft); color: var(--coral-primary); }
+.badge-status-scheduled { background: var(--purple-soft); color: var(--purple-primary); }
+.badge-status-completed { background: #f1f5f9; color: #475569; }
+
+/* -------------------------------------------------------------
+   TABLES
+------------------------------------------------------------- */
+.table-healthcare {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.table-healthcare thead th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-healthcare tbody td {
+  padding: 1rem 1.1rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.93rem;
+}
+
+.table-healthcare tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* -------------------------------------------------------------
+   AUDIO / VISUAL SOS FLASH OVERLAY
+------------------------------------------------------------- */
+.sos-active-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(225, 29, 72, 0.25);
+  z-index: 9999;
+  pointer-events: none;
+  animation: flash-red 1s infinite alternate;
+}
+
+@keyframes flash-red {
+  0% { opacity: 0.1; }
+  100% { opacity: 0.6; }
+}
+
+/* -------------------------------------------------------------
+   RESPONSIVE DESIGN (DRAWER FOR MOBILE)
+------------------------------------------------------------- */
+@media (max-width: 992px) {
+  .left-sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .left-sidebar.show-mobile {
+    transform: translateX(0);
+  }
+  
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+  
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 1035;
+    display: none;
+  }
+  
+  .sidebar-backdrop.show {
+    display: block;
+  }
+}

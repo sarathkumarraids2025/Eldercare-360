@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}About | ElderCare 360 Architecture{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <h2 class="fw-bold mb-0">{{ _t('nav_about') }}</h2>
+    <span class="badge bg-teal-soft text-teal px-3 py-1 rounded-pill" style="background: var(--teal-soft); color: var(--teal-primary);">
+      Platform Architecture
+    </span>
+  </div>
+
+  <!-- Hero Overview Card -->
+  <div class="card card-healthcare p-5 mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #faf5ff 100%);">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <h2 class="fw-bold mb-3">Empowering Independent Senior Living Through Intelligent Health Technology</h2>
+        <p class="text-muted fs-5 leading-relaxed">
+          <strong>ElderCare 360</strong> is a production-ready, intelligent healthcare management platform engineered to solve the complex daily challenges of geriatric health maintenance, polypharmacy medication management, and proactive multi-stakeholder care coordination.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <span class="badge bg-teal p-2 px-3 text-white" style="background-color: var(--teal-primary);">Teal Primary</span>
+          <span class="badge bg-sky p-2 px-3 text-white" style="background-color: var(--sky-primary);">Sky Blue</span>
+          <span class="badge bg-mint p-2 px-3 text-white" style="background-color: var(--mint-primary);">Mint Green</span>
+          <span class="badge bg-purple p-2 px-3 text-white" style="background-color: var(--purple-primary);">Soft Purple</span>
+          <span class="badge bg-coral p-2 px-3 text-white" style="background-color: var(--coral-primary);">Coral Accent</span>
+        </div>
+      </div>
+      <div class="col-lg-4 text-center">
+        <img src="{{ url_for('static', filename='images/caregiver-support.jpg') }}" class="img-fluid rounded-4 shadow-sm" alt="Caregiver Support" style="max-height: 240px; object-fit: cover;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Architecture Grid -->
+  <h4 class="fw-bold mb-3">Supported Multi-Stakeholder Ecosystem</h4>
+  <div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-healthcare h-100 p-4">
+        <div class="kpi-icon-box" style="background: var(--teal-soft); color: var(--teal-primary);">
+          <i class="bi bi-person-heart fs-3"></i>
+        </div>
+        <h5 class="fw-bold">1. Senior Citizens</h5>
+        <p class="text-muted small">Simplified high-contrast cards, large clickable buttons, clear food instructions, and audible dosing alarms for maximum independence.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-healthcare h-100 p-4">
+        <div class="kpi-icon-box" style="background: var(--purple-soft); color: var(--purple-primary);">
+          <i class="bi bi-people-fill fs-3"></i>
+        </div>
+        <h5 class="fw-bold">2. Family Guardians</h5>
+        <p class="text-muted small">Dedicated family portal offering real-time peace of mind: adherence rates, nurse check-ins, upcoming doctor visits, and instant SOS alerts.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-healthcare h-100 p-4">
+        <div class="kpi-icon-box" style="background: var(--mint-soft); color: var(--mint-primary);">
+          <i class="bi bi-heart-pulse-fill fs-3"></i>
+        </div>
+        <h5 class="fw-bold">3. Professional Caregivers</h5>
+        <p class="text-muted small">Dedicated tools for nurses and home aides to record vitals, verify dose administration, escalate missed doses, and write clinical notes.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-healthcare h-100 p-4">
+        <div class="kpi-icon-box" style="background: var(--sky-soft); color: var(--sky-primary);">
+          <i class="bi bi-hospital-fill fs-3"></i>
+        </div>
+        <h5 class="fw-bold">4. Physicians &amp; Specialists</h5>
+        <p class="text-muted small">Prescription management, 14-day vital signs trajectories, longitudinal charts, and consultation appointment scheduling.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-healthcare h-100 p-4">
+        <div class="kpi-icon-box" style="background: #f1f5f9; color: #334155;">
+          <i class="bi bi-shield-lock-fill fs-3"></i>
+        </div>
+        <h5 class="fw-bold">5. System Administrators</h5>
+        <p class="text-muted small">Role-based access governance, database schema maintenance, audit trails, and healthcare telemetry supervision.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-healthcare h-100 p-4">
+        <div class="kpi-icon-box" style="background: var(--coral-soft); color: var(--coral-primary);">
+          <i class="bi bi-cpu-fill fs-3"></i>
+        </div>
+        <h5 class="fw-bold">6. AI Clinical Engine</h5>
+        <p class="text-muted small">Random Forest ML model predicting adherence risks, flagging vitals threshold deviations, and outputting actionable clinical guidance.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medical Assistance & Non-Diagnosis Disclaimer -->
+  <div class="card card-healthcare border-secondary border-opacity-25 bg-light p-4">
+    <h5 class="fw-bold text-dark mb-2">
+      <i class="bi bi-shield-check text-success me-2"></i>Medical Assistance Disclaimer
+    </h5>
+    <p class="text-muted small mb-0">
+      ElderCare 360 is an intelligent monitoring and workflow assistance system. It is designed to assist elderly individuals, caregivers, and families in tracking daily medications and physiological measurements. It does NOT provide autonomous medical diagnoses or prescribe pharmaceutical regimens. All medical advice and therapy changes should be conducted under the direct supervision of a licensed healthcare physician.
+    </p>
+  </div>
+</div>
+{% endblock %}

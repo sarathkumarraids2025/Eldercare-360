@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}System Settings &amp; Accessibility | {{ _t('nav_settings') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <h2 class="fw-bold mb-0">{{ _t('nav_settings') }}</h2>
+    <span class="badge bg-teal-soft text-teal px-3 py-1 rounded-pill" style="background: var(--teal-soft); color: var(--teal-primary);">
+      Preferences &amp; Accessibility
+    </span>
+  </div>
+
+  <div class="row g-4">
+    <!-- Column 1: Language & Accessibility Controls -->
+    <div class="col-lg-6">
+      <!-- Language Selection Card -->
+      <div class="card card-healthcare mb-4">
+        <div class="card-header-styled">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-translate text-teal fs-5" style="color: var(--teal-primary);"></i>
+            <h5 class="fw-bold mb-0">{{ _t('language') }} (Language Selection)</h5>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-muted small">Choose your preferred application language. All navigation labels, medical terms, instructions, and buttons will adapt instantly.</p>
+          <div class="d-flex gap-3">
+            <a href="{{ url_for('set_language', lang_code='en') }}" class="btn btn-outline-teal px-4 py-2 flex-grow-1 {% if session.get('lang', 'en') == 'en' %}active fw-bold{% endif %}">
+              🇬🇧 English (Default)
+            </a>
+            <a href="{{ url_for('set_language', lang_code='ta') }}" class="btn btn-outline-teal px-4 py-2 flex-grow-1 {% if session.get('lang') == 'ta' %}active fw-bold{% endif %}">
+              🇮🇳 தமிழ் (Tamil)
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Senior Citizen Visual Accessibility Card -->
+      <div class="card card-healthcare mb-4">
+        <div class="card-header-styled">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-eye text-teal fs-5" style="color: var(--teal-primary);"></i>
+            <h5 class="fw-bold mb-0">Elderly Visual Accessibility</h5>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <label class="form-label fw-semibold mb-2">Display Font Scaling for Seniors</label>
+          <p class="text-muted small mb-3">Enlarge text sizes across all screens for enhanced readability without breaking layouts.</p>
+          
+          <div class="btn-group w-100 mb-4" role="group">
+            <button type="button" class="btn btn-outline-secondary py-2" onclick="setFontSize('normal')">
+              Normal (100%)
+            </button>
+            <button type="button" class="btn btn-outline-secondary py-2" onclick="setFontSize('large')">
+              Large (115%)
+            </button>
+            <button type="button" class="btn btn-outline-secondary py-2" onclick="setFontSize('xlarge')">
+              Extra Large (130%)
+            </button>
+          </div>
+
+          <label class="form-label fw-semibold mb-2">High Contrast Mode</label>
+          <p class="text-muted small mb-3">Maximizes contrast with crisp borders and deep pigments for seniors with cataract or vision impairment.</p>
+          <button type="button" class="btn btn-outline-dark w-100 py-2" onclick="toggleHighContrast()">
+            <i class="bi bi-circle-half me-2"></i> Toggle High Contrast Display
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Notification & Audio Chimes Preferences -->
+    <div class="col-lg-6">
+      <div class="card card-healthcare mb-4">
+        <div class="card-header-styled">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-bell text-teal fs-5" style="color: var(--teal-primary);"></i>
+            <h5 class="fw-bold mb-0">Automated Notification Dispatch Settings</h5>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="audioChimeSwitch" checked>
+            <label class="form-check-label fw-semibold" for="audioChimeSwitch">
+              Audible Synthesizer Alarms
+              <small class="text-muted d-block fw-normal">Plays melodic tones on dosing windows (Web Audio API)</small>
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="caregiverEscalationSwitch" checked>
+            <label class="form-check-label fw-semibold" for="caregiverEscalationSwitch">
+              Missed Dose Caregiver Escalation
+              <small class="text-muted d-block fw-normal">Notifies primary nurse if dose remains unconfirmed 45 mins past schedule</small>
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="criticalVitalsAlertSwitch" checked>
+            <label class="form-check-label fw-semibold" for="criticalVitalsAlertSwitch">
+              Vitals Anomaly Immediate Dispatch
+              <small class="text-muted d-block fw-normal">Alerts doctor &amp; family if blood pressure &gt; 160 or SpO2 &lt; 94%</small>
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="weeklyReportSwitch" checked>
+            <label class="form-check-label fw-semibold" for="weeklyReportSwitch">
+              Family Weekly Adherence Digest
+              <small class="text-muted d-block fw-normal">Sends Sunday 7-day adherence performance summaries</small>
+            </label>
+          </div>
+
+          <div class="pt-3 border-top">
+            <button type="button" class="btn btn-primary-teal w-100" onclick="alert('Notification and accessibility preferences saved successfully.')">
+              Save Preferences
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

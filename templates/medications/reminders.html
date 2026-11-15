@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Medication Reminders | {{ _t('nav_reminders') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="fw-bold mb-0">{{ _t('nav_reminders') }}</h2>
+        <span class="badge bg-danger text-white px-3 py-1 rounded-pill">
+          Live Alert Monitor
+        </span>
+      </div>
+      <p class="text-muted mb-0">Automated scheduled alarms, pending doses, missed dose notifications, and caregiver check-ins.</p>
+    </div>
+
+    <!-- Reminder Audio Test Button -->
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-teal btn-sm" onclick="window.AudioAlerts.playChime()">
+        <i class="bi bi-volume-up-fill me-1"></i> Test Chime Alarm
+      </button>
+      <a href="{{ url_for('medications') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-capsule me-1"></i> Prescription List
+      </a>
+    </div>
+  </div>
+
+  <!-- Mandatory Safety Alert -->
+  <div class="alert alert-warning border-warning shadow-sm d-flex align-items-center gap-3 mb-4 p-3">
+    <i class="bi bi-shield-exclamation text-warning fs-3"></i>
+    <div>
+      <h6 class="fw-bold mb-1">Standard Medical Safety Directive</h6>
+      <p class="mb-0 small">
+        <strong>DO NOT TAKE A DOUBLE DOSE</strong> to compensate for a missed dose. If more than 4 hours have elapsed past the scheduled time, skip the dose and resume your regular schedule. Contact your prescribing physician or pharmacist if uncertain.
+      </p>
+    </div>
+  </div>
+
+  <!-- Reminder Sections: Upcoming Today, Taken, Missed -->
+  <div class="row g-4 mb-4">
+    <!-- Active / Pending Reminders -->
+    <div class="col-lg-6">
+      <div class="card card-healthcare h-100">
+        <div class="card-header-styled bg-light">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-hourglass-top text-primary fs-5"></i>
+            <h5 class="fw-bold mb-0">Pending &amp; Upcoming Doses (Today)</h5>
+          </div>
+          <span class="badge bg-primary rounded-pill">{{ pending_reminders|length }}</span>
+        </div>
+        <div class="card-body p-3">
+          {% if pending_reminders %}
+            <div class="list-group list-group-flush">
+              {% for rem in pending_reminders %}
+                <div class="list-group-item p-3 border rounded-3 mb-3 bg-white shadow-sm">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 fs-6 px-2 py-1">
+                        <i class="bi bi-clock me-1"></i> {{ rem.scheduled_time }}
+                      </span>
+                      <h5 class="fw-bold text-dark mt-2 mb-0">{{ rem.medication.name }}</h5>
+                      <span class="text-teal fw-semibold" style="color: var(--teal-primary);">{{ rem.medication.dosage }} ({{ rem.medication.form }})</span>
+                    </div>
+                    <span class="badge-status badge-status-pending">Pending</span>
+                  </div>
+                  <p class="small text-muted mb-3">
+                    <i class="bi bi-info-circle me-1 text-teal"></i> {{ rem.medication.instructions or 'Take with water.' }}
+                  </p>
+                  <div class="d-flex gap-2">
+                    <form action="{{ url_for('update_medication_status', log_id=rem.id) }}" method="POST" class="flex-grow-1">
+                      <input type="hidden" name="status" value="taken">
+                      <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">
+                        <i class="bi bi-check-circle-fill me-1"></i> Mark as Taken
+                      </button>
+                    </form>
+                    <form action="{{ url_for('update_medication_status', log_id=rem.id) }}" method="POST" class="flex-grow-1">
+                      <input type="hidden" name="status" value="missed">
+                      <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="bi bi-x-circle me-1"></i> Mark Missed
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-check2-all fs-1 text-success d-block mb-2"></i>
+              <h6 class="fw-bold text-dark">All Doses for Today Completed!</h6>
+              <p class="small mb-0">No outstanding medication alarms pending right now.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Missed Dose Alerts & Caregiver Escalations -->
+    <div class="col-lg-6">
+      <div class="card card-healthcare h-100">
+        <div class="card-header-styled bg-light">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+            <h5 class="fw-bold mb-0">Missed Dose Alerts &amp; Escalations</h5>
+          </div>
+          <span class="badge bg-danger rounded-pill">{{ missed_reminders|length }}</span>
+        </div>
+        <div class="card-body p-3">
+          {% if missed_reminders %}
+            <div class="list-group list-group-flush">
+              {% for rem in missed_reminders %}
+                <div class="list-group-item p-3 border border-danger border-opacity-25 rounded-3 mb-3 bg-danger bg-opacity-10">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <span class="badge bg-danger text-white fs-6 px-2 py-1">
+                        <i class="bi bi-alarm-fill me-1"></i> Missed: {{ rem.scheduled_time }}
+                      </span>
+                      <h5 class="fw-bold text-dark mt-2 mb-0">{{ rem.medication.name }} ({{ rem.medication.dosage }})</h5>
+                    </div>
+                    <span class="badge-status badge-status-missed">Alert Dispatched</span>
+                  </div>
+                  <p class="small text-danger mb-3">
+                    <strong>Caregiver Notification:</strong> Automated alert sent to designated primary caregiver Nurse Anitha &amp; family member Vijay.
+                  </p>
+                  <div class="d-flex gap-2">
+                    <form action="{{ url_for('update_medication_status', log_id=rem.id) }}" method="POST">
+                      <input type="hidden" name="status" value="taken">
+                      <button type="submit" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-arrow-repeat me-1"></i> Took Late
+                      </button>
+                    </form>
+                    <a href="tel:{{ rem.medication.doctor_phone or '108' }}" class="btn btn-outline-danger btn-sm">
+                      <i class="bi bi-telephone-fill me-1"></i> Contact Doctor
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-shield-check fs-1 text-teal d-block mb-2" style="color: var(--teal-primary);"></i>
+              <h6 class="fw-bold text-dark">Zero Missed Doses!</h6>
+              <p class="small mb-0">Medication compliance is optimal. Caregivers have not received any missed dose escalations.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historical Dose Log Table -->
+  <div class="card card-healthcare">
+    <div class="card-header-styled">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-journal-medical text-teal fs-5" style="color: var(--teal-primary);"></i>
+        <h5 class="fw-bold mb-0">Medication Dose Activity History (Past 10 Days)</h5>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-healthcare table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Medicine</th>
+              <th>Dosage</th>
+              <th>Status</th>
+              <th>Recorded Time</th>
+              <th>Clinical Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in history_logs %}
+              <tr>
+                <td class="fw-semibold text-dark">{{ log.scheduled_date.strftime('%b %d, %Y') }}</td>
+                <td><i class="bi bi-clock me-1 text-muted"></i>{{ log.scheduled_time }}</td>
+                <td><strong>{{ log.medication.name }}</strong></td>
+                <td><span class="badge bg-light text-dark border">{{ log.medication.dosage }}</span></td>
+                <td>
+                  {% if log.status == 'taken' %}
+                    <span class="badge-status badge-status-taken">Taken</span>
+                  {% elif log.status == 'missed' %}
+                    <span class="badge-status badge-status-missed">Missed</span>
+                  {% else %}
+                    <span class="badge-status badge-status-pending">Pending</span>
+                  {% endif %}
+                </td>
+                <td class="small text-muted">
+                  {{ log.taken_at.strftime('%I:%M %p') if log.taken_at else '—' }}
+                </td>
+                <td class="small text-secondary">{{ log.notes or 'Routine scheduled event' }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No historical dosage records logged yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

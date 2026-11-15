@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | {{ current_user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <h2 class="fw-bold mb-0">{{ _t('profile') }}</h2>
+    <span class="badge bg-teal-soft text-teal px-3 py-1 rounded-pill" style="background: var(--teal-soft); color: var(--teal-primary);">
+      Account Management
+    </span>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card card-healthcare text-center p-4">
+        <div class="rounded-circle bg-teal text-white d-flex align-items-center justify-content-center fw-bold mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; background: var(--teal-primary);">
+          {{ current_user.full_name[0] }}
+        </div>
+        <h4 class="fw-bold mb-1">{{ current_user.full_name }}</h4>
+        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1 rounded-pill mb-3">
+          {{ _t('role_' + current_user.role) }}
+        </span>
+        <div class="text-start small border-top pt-3 text-secondary">
+          <p class="mb-2"><i class="bi bi-person text-teal me-2"></i><strong>Username:</strong> {{ current_user.username }}</p>
+          <p class="mb-2"><i class="bi bi-envelope text-teal me-2"></i><strong>Email:</strong> {{ current_user.email }}</p>
+          <p class="mb-2"><i class="bi bi-telephone text-teal me-2"></i><strong>Phone:</strong> {{ current_user.phone or 'Not set' }}</p>
+          <p class="mb-0"><i class="bi bi-calendar-event text-teal me-2"></i><strong>Joined:</strong> {{ current_user.created_at.strftime('%b %d, %Y') }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card card-healthcare">
+        <div class="card-header-styled">
+          <h5 class="fw-bold mb-0">Edit Profile &amp; Contact Details</h5>
+        </div>
+        <div class="card-body p-4">
+          <form action="{{ url_for('update_profile') }}" method="POST">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Full Legal Name *</label>
+                <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Email Address *</label>
+                <input type="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Contact Phone Number</label>
+                <input type="text" name="phone" class="form-control" value="{{ current_user.phone or '' }}" placeholder="+91 98401 23456">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Preferred Language</label>
+                <select name="preferred_language" class="form-select">
+                  <option value="en" {% if current_user.preferred_language == 'en' %}selected{% endif %}>English</option>
+                  <option value="ta" {% if current_user.preferred_language == 'ta' %}selected{% endif %}>தமிழ் (Tamil)</option>
+                </select>
+              </div>
+              <div class="col-12 text-end pt-3">
+                <button type="submit" class="btn btn-primary-teal px-4">
+                  <i class="bi bi-save me-1"></i> Save Changes
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <hr class="my-4">
+
+          <h5 class="fw-bold mb-3">Change Password</h5>
+          <form action="{{ url_for('change_password') }}" method="POST">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Current Password *</label>
+                <input type="password" name="current_password" class="form-control" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">New Password *</label>
+                <input type="password" name="new_password" class="form-control" minlength="6" required>
+              </div>
+              <div class="col-12 text-end">
+                <button type="submit" class="btn btn-outline-danger px-4">
+                  Update Password
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Caregiver Management | {{ _t('nav_caregivers') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="fw-bold mb-0">{{ _t('nav_caregivers') }}</h2>
+        <span class="badge bg-teal text-white px-3 py-1 rounded-pill" style="background-color: var(--teal-primary);">
+          Care Team Coordination
+        </span>
+      </div>
+      <p class="text-muted mb-0">Authorized nurses, home aides, and family guardians managing elderly daily health activities.</p>
+    </div>
+
+    <div>
+      <button class="btn btn-primary-teal btn-sm" data-bs-toggle="modal" data-bs-target="#assignCaregiverModal">
+        <i class="bi bi-person-plus me-1"></i> Authorize New Caregiver
+      </button>
+    </div>
+  </div>
+
+  <!-- Caregiver Cards Grid -->
+  <div class="row g-4 mb-4">
+    {% for link in caregiver_links %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card card-healthcare h-100 p-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle bg-teal text-white d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 56px; height: 56px; background: var(--teal-primary);">
+              {{ link.caregiver.full_name[0] }}
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0">{{ link.caregiver.full_name }}</h5>
+              <div class="badge bg-teal-soft text-teal border border-teal" style="background: var(--teal-soft); color: var(--teal-primary);">
+                {{ link.relationship }}
+              </div>
+            </div>
+          </div>
+
+          <div class="small text-muted mb-3 border-top border-bottom py-2">
+            <div class="mb-1"><i class="bi bi-envelope text-teal me-2"></i>{{ link.caregiver.email }}</div>
+            <div class="mb-1"><i class="bi bi-telephone text-teal me-2"></i>{{ link.caregiver.phone or 'No phone on file' }}</div>
+            <div><i class="bi bi-shield-check text-teal me-2"></i>Permission: <strong class="text-dark">{{ link.permission_level|title }}</strong></div>
+          </div>
+
+          <p class="small text-secondary mb-4 flex-grow-1">
+            {{ link.notes or 'Primary daily caregiver responsible for medication logs and vital signs tracking.' }}
+          </p>
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <small class="text-muted">Assigned: {{ link.assigned_date.strftime('%b %d, %Y') }}</small>
+            <form action="{{ url_for('delete_caregiver_link', link_id=link.id) }}" method="POST" onsubmit="return confirm('Revoke caregiver access for {{ link.caregiver.full_name }}?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-person-x me-1"></i> Revoke Access
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12">
+        <div class="card card-healthcare p-5 text-center text-muted">
+          <i class="bi bi-person-hearts fs-1 text-teal d-block mb-2" style="color: var(--teal-primary);"></i>
+          <h5 class="fw-bold text-dark">No Caregivers Linked Yet</h5>
+          <p class="mb-3">Authorize family members or registered nurses to assist with monitoring and medication management.</p>
+          <div>
+            <button class="btn btn-outline-teal btn-sm" data-bs-toggle="modal" data-bs-target="#assignCaregiverModal">
+              Authorize Caregiver
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Care Team Activity Responsibilities Overview -->
+  <div class="card card-healthcare">
+    <div class="card-header-styled">
+      <h5 class="fw-bold mb-0">Role &amp; Permission Access Matrix</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-healthcare table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Permission Level</th>
+              <th>Medication CRUD</th>
+              <th>Vitals Logging</th>
+              <th>Emergency SOS Alerts</th>
+              <th>Doctor Appointments</th>
+              <th>Clinical Directives</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge bg-success">Full Access</span></td>
+              <td><i class="bi bi-check-circle-fill text-success"></i> View &amp; Log Doses</td>
+              <td><i class="bi bi-check-circle-fill text-success"></i> View &amp; Enter Vitals</td>
+              <td><i class="bi bi-check-circle-fill text-success"></i> Instant Push &amp; SMS</td>
+              <td><i class="bi bi-check-circle-fill text-success"></i> Schedule &amp; Manage</td>
+              <td>Full Patient Profile</td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-info text-dark">View Only</span></td>
+              <td><i class="bi bi-eye-fill text-info"></i> View Schedule Only</td>
+              <td><i class="bi bi-eye-fill text-info"></i> View Charts Only</td>
+              <td><i class="bi bi-check-circle-fill text-success"></i> Receives Emergency Alarms</td>
+              <td><i class="bi bi-eye-fill text-info"></i> View Consultations</td>
+              <td>View Basic Medical Records</td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-warning text-dark">Emergency Only</span></td>
+              <td><i class="bi bi-dash-circle text-muted"></i> Restricted</td>
+              <td><i class="bi bi-dash-circle text-muted"></i> Restricted</td>
+              <td><i class="bi bi-check-circle-fill text-danger"></i> Receives SOS Dispatches Only</td>
+              <td><i class="bi bi-dash-circle text-muted"></i> Restricted</td>
+              <td>Emergency Contacts &amp; Allergies</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     ASSIGN CAREGIVER MODAL
+     ========================================== -->
+<div class="modal fade" id="assignCaregiverModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ url_for('assign_caregiver') }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-person-plus me-2 text-teal"></i>Authorize Caregiver
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Caregiver Username or Email *</label>
+            <input type="text" name="caregiver_identifier" class="form-control" placeholder="e.g. nurse_anitha or anitha.care@eldercare360.org" required>
+            <small class="text-muted">Enter the username of a registered caregiver or family member.</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Relationship to Senior *</label>
+            <input type="text" name="relationship" class="form-control" placeholder="e.g. Primary Day Nurse, Son, Daughter, Home Aide" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Permission Level</label>
+            <select name="permission_level" class="form-select">
+              <option value="full" selected>Full Access (Log Doses, Enter Vitals, Manage Appointments)</option>
+              <option value="view_only">View Only (Monitor adherence and vitals without editing)</option>
+              <option value="emergency_only">Emergency SOS Only</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Duties &amp; Care Notes</label>
+            <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Daily morning visits 8:00 AM to 1:00 PM; administers morning insulin and checks BP."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-teal">Grant Authorization</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}Medication Management | {{ _t('nav_medications') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="fw-bold mb-0">{{ _t('nav_medications') }}</h2>
+        <span class="badge bg-teal text-white px-3 py-1 rounded-pill" style="background-color: var(--teal-primary);">
+          {{ medications|length }} Prescriptions
+        </span>
+      </div>
+      <p class="text-muted mb-0">Active prescription regimens, dosing schedules, instructions, and prescribing physician details.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('reminders') }}" class="btn btn-outline-teal btn-sm">
+        <i class="bi bi-alarm me-1"></i> {{ _t('nav_reminders') }}
+      </a>
+      <button type="button" class="btn btn-primary-teal btn-sm" data-bs-toggle="modal" data-bs-target="#addMedicationModal">
+        <i class="bi bi-plus-lg me-1"></i> {{ _t('add_medication') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Clinical Safety Alert Banner (Mandatory Medical Directive) -->
+  <div class="alert alert-warning border-warning shadow-sm d-flex align-items-center gap-3 mb-4 p-3">
+    <i class="bi bi-exclamation-diamond-fill text-warning fs-3"></i>
+    <div>
+      <h6 class="fw-bold mb-1">Geriatric Medication Safety Standard</h6>
+      <p class="mb-0 small">{{ _t('warning_double_dose') }}</p>
+    </div>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="card card-healthcare mb-4 p-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" class="form-control table-search-input border-start-0" data-target-table="medicationsTable" placeholder="{{ _t('search_placeholder') }}">
+        </div>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <span class="small text-muted me-2">Displaying all active and archived medications stored in database.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medications Table -->
+  <div class="card card-healthcare">
+    <div class="card-header-styled">
+      <h5 class="fw-bold mb-0">Registered Medication Regimens</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-healthcare table-hover align-middle mb-0" id="medicationsTable">
+          <thead>
+            <tr>
+              <th>Medicine Name</th>
+              <th>Form &amp; Dosage</th>
+              <th>Frequency</th>
+              <th>Dosing Times</th>
+              <th>Prescribed By</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for med in medications %}
+              <tr>
+                <td>
+                  <strong class="text-dark fs-6">{{ med.name }}</strong>
+                  <div class="small text-muted">{{ med.instructions or 'No specific food instructions' }}</div>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">{{ med.form }}</span>
+                  <span class="fw-semibold text-teal ms-1" style="color: var(--teal-primary);">{{ med.dosage }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-light text-secondary border">{{ med.frequency }}</span>
+                </td>
+                <td>
+                  {% for t in med.get_times_list() %}
+                    <span class="badge bg-info bg-opacity-10 text-primary border border-info border-opacity-25 me-1">
+                      <i class="bi bi-clock me-1"></i>{{ t }}
+                    </span>
+                  {% endfor %}
+                </td>
+                <td>
+                  <div class="small fw-semibold text-dark">{{ med.prescribing_doctor or 'Primary Physician' }}</div>
+                  {% if med.doctor_phone %}
+                    <small class="text-muted"><i class="bi bi-telephone me-1"></i>{{ med.doctor_phone }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if med.is_active %}
+                    <span class="badge-status badge-status-taken">Active</span>
+                  {% else %}
+                    <span class="badge-status badge-status-completed">Discontinued</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editMedModal{{ med.id }}" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <form action="{{ url_for('delete_medication', med_id=med.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete medication {{ med.name }}? This removes associated logs.');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+
+              <!-- Edit Medication Modal for each row -->
+              <div class="modal fade" id="editMedModal{{ med.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <form action="{{ url_for('edit_medication', med_id=med.id) }}" method="POST">
+                      <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Edit Medication: {{ med.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body p-4">
+                        <div class="row g-3">
+                          <div class="col-md-6">
+                            <label class="form-label fw-semibold">Medicine Name *</label>
+                            <input type="text" name="name" class="form-control" value="{{ med.name }}" required>
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label fw-semibold">Dosage *</label>
+                            <input type="text" name="dosage" class="form-control" value="{{ med.dosage }}" required>
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label fw-semibold">Form</label>
+                            <select name="form" class="form-select">
+                              <option value="Tablet" {% if med.form == 'Tablet' %}selected{% endif %}>Tablet</option>
+                              <option value="Capsule" {% if med.form == 'Capsule' %}selected{% endif %}>Capsule</option>
+                              <option value="Liquid" {% if med.form == 'Liquid' %}selected{% endif %}>Liquid / Syrup</option>
+                              <option value="Injection" {% if med.form == 'Injection' %}selected{% endif %}>Injection</option>
+                              <option value="Inhaler" {% if med.form == 'Inhaler' %}selected{% endif %}>Inhaler</option>
+                              <option value="Drops" {% if med.form == 'Drops' %}selected{% endif %}>Drops</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4">
+                            <label class="form-label fw-semibold">Frequency *</label>
+                            <select name="frequency" class="form-select" required>
+                              <option value="Once Daily" {% if med.frequency == 'Once Daily' %}selected{% endif %}>Once Daily</option>
+                              <option value="Twice Daily" {% if med.frequency == 'Twice Daily' %}selected{% endif %}>Twice Daily</option>
+                              <option value="Three Times Daily" {% if med.frequency == 'Three Times Daily' %}selected{% endif %}>Three Times Daily</option>
+                              <option value="Every 8 Hours" {% if med.frequency == 'Every 8 Hours' %}selected{% endif %}>Every 8 Hours</option>
+                              <option value="Weekly" {% if med.frequency == 'Weekly' %}selected{% endif %}>Weekly</option>
+                              <option value="As Needed" {% if med.frequency == 'As Needed' %}selected{% endif %}>As Needed (SOS)</option>
+                            </select>
+                          </div>
+                          <div class="col-md-8">
+                            <label class="form-label fw-semibold">Scheduled Dosing Times (24-hr format, comma separated)</label>
+                            <input type="text" name="scheduled_times" class="form-control" value="{{ med.scheduled_times }}" placeholder="08:00, 20:00" required>
+                          </div>
+                          <div class="col-12">
+                            <label class="form-label fw-semibold">Instructions / Food Guidance</label>
+                            <textarea name="instructions" class="form-control" rows="2">{{ med.instructions or '' }}</textarea>
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label fw-semibold">Prescribing Doctor</label>
+                            <input type="text" name="prescribing_doctor" class="form-control" value="{{ med.prescribing_doctor or '' }}">
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label fw-semibold">Doctor / Pharmacy Phone</label>
+                            <input type="text" name="doctor_phone" class="form-control" value="{{ med.doctor_phone or '' }}">
+                          </div>
+                          <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                              <input class="form-check-input" type="checkbox" name="is_active" id="activeSwitch{{ med.id }}" {% if med.is_active %}checked{% endif %}>
+                              <label class="form-check-label fw-semibold" for="activeSwitch{{ med.id }}">Prescription is currently Active</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary-teal">Save Changes</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                  No medications found. Click "Add New Medication" to register prescriptions.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     ADD MEDICATION MODAL
+     ========================================== -->
+<div class="modal fade" id="addMedicationModal" tabindex="-1" aria-labelledby="addMedLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="{{ url_for('add_medication') }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="addMedLabel">
+            <i class="bi bi-capsule me-2 text-teal"></i>{{ _t('add_medication') }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ _t('med_name') }} *</label>
+              <input type="text" name="name" class="form-control" placeholder="e.g. Metformin, Amlodipine" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">{{ _t('dosage') }} *</label>
+              <input type="text" name="dosage" class="form-control" placeholder="e.g. 500 mg, 10 ml" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">{{ _t('form') }}</label>
+              <select name="form" class="form-select">
+                <option value="Tablet" selected>Tablet</option>
+                <option value="Capsule">Capsule</option>
+                <option value="Liquid">Liquid / Syrup</option>
+                <option value="Injection">Injection</option>
+                <option value="Inhaler">Inhaler</option>
+                <option value="Drops">Drops</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">{{ _t('frequency') }} *</label>
+              <select name="frequency" class="form-select" required>
+                <option value="Once Daily">Once Daily</option>
+                <option value="Twice Daily" selected>Twice Daily</option>
+                <option value="Three Times Daily">Three Times Daily</option>
+                <option value="Every 8 Hours">Every 8 Hours</option>
+                <option value="Weekly">Weekly</option>
+                <option value="As Needed">As Needed (SOS)</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">{{ _t('scheduled_time') }} (24-hr format, comma-separated) *</label>
+              <input type="text" name="scheduled_times" class="form-control" value="08:00, 20:00" placeholder="08:00, 20:00" required>
+              <small class="text-muted">Separate multiple daily times with commas (e.g. 08:00, 13:00, 20:00)</small>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">{{ _t('instructions') }}</label>
+              <textarea name="instructions" class="form-control" rows="2" placeholder="e.g. Take immediately after breakfast with a full glass of water"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">{{ _t('doctor') }}</label>
+              <input type="text" name="prescribing_doctor" class="form-control" placeholder="e.g. Dr. K. Subramanian, Cardiologist">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Doctor / Hospital Contact</label>
+              <input type="text" name="doctor_phone" class="form-control" placeholder="e.g. +91 98840 11223">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ _t('cancel') }}</button>
+          <button type="submit" class="btn btn-primary-teal">{{ _t('save') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

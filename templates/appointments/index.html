@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Appointments | {{ _t('nav_appointments') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="fw-bold mb-0">{{ _t('nav_appointments') }}</h2>
+        <span class="badge bg-sky text-white px-3 py-1 rounded-pill" style="background-color: var(--sky-primary);">
+          Clinical Consultations
+        </span>
+      </div>
+      <p class="text-muted mb-0">Schedule consultations, manage specialist visits, track hospital visits, and view appointment records.</p>
+    </div>
+
+    <div>
+      <button class="btn btn-primary-teal btn-sm" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
+        <i class="bi bi-calendar-plus me-1"></i> Schedule New Appointment
+      </button>
+    </div>
+  </div>
+
+  <!-- Upcoming Appointments Card Grid -->
+  <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-teal me-2" style="color: var(--teal-primary);"></i>Upcoming Scheduled Consultations</h5>
+  <div class="row g-4 mb-5">
+    {% for appt in upcoming_appointments %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card card-healthcare h-100 border-start border-4 border-teal" style="border-left-color: var(--teal-primary) !important;">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="badge bg-teal-soft text-teal px-3 py-1 rounded-pill fw-bold" style="background: var(--teal-soft); color: var(--teal-primary);">
+                <i class="bi bi-calendar3 me-1"></i> {{ appt.appointment_date.strftime('%a, %b %d, %Y') }}
+              </span>
+              <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">
+                {{ appt.appointment_time }}
+              </span>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-1">{{ appt.doctor_name }}</h5>
+            <div class="text-teal small fw-semibold mb-2" style="color: var(--teal-primary);">{{ appt.specialization }}</div>
+            <p class="text-muted small mb-2"><i class="bi bi-hospital me-1"></i>{{ appt.clinic_hospital or 'Clinic' }}</p>
+
+            <div class="p-3 bg-light rounded-3 border small mb-3">
+              <strong>Purpose:</strong> {{ appt.purpose or 'Routine health follow-up' }}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+              <span class="badge-status badge-status-scheduled">{{ appt.status }}</span>
+              <div class="d-flex gap-1">
+                <form action="{{ url_for('update_appointment_status', appt_id=appt.id) }}" method="POST">
+                  <input type="hidden" name="status" value="Completed">
+                  <button type="submit" class="btn btn-sm btn-outline-success" title="Mark Completed">
+                    <i class="bi bi-check-lg"></i> Complete
+                  </button>
+                </form>
+                <form action="{{ url_for('update_appointment_status', appt_id=appt.id) }}" method="POST" onsubmit="return confirm('Cancel this appointment?');">
+                  <input type="hidden" name="status" value="Cancelled">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12">
+        <div class="card card-healthcare p-5 text-center text-muted">
+          <i class="bi bi-calendar-check fs-1 text-teal d-block mb-2" style="color: var(--teal-primary);"></i>
+          <h5 class="fw-bold text-dark">No Upcoming Appointments</h5>
+          <p class="mb-3">Schedule appointments with specialists or primary doctors using the button above.</p>
+          <div>
+            <button class="btn btn-outline-teal btn-sm" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
+              Book Appointment
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Appointment History Table -->
+  <div class="card card-healthcare">
+    <div class="card-header-styled">
+      <h5 class="fw-bold mb-0">Consultation History &amp; Past Visits</h5>
+      <div class="w-25">
+        <input type="text" class="form-control form-control-sm table-search-input" data-target-table="apptsHistoryTable" placeholder="Search doctor or clinic...">
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-healthcare table-hover align-middle mb-0" id="apptsHistoryTable">
+          <thead>
+            <tr>
+              <th>Date &amp; Time</th>
+              <th>Doctor Name</th>
+              <th>Specialization</th>
+              <th>Hospital / Clinic</th>
+              <th>Consultation Purpose</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for appt in past_appointments %}
+              <tr>
+                <td class="fw-semibold text-dark">{{ appt.appointment_date.strftime('%b %d, %Y') }} at {{ appt.appointment_time }}</td>
+                <td><strong>{{ appt.doctor_name }}</strong></td>
+                <td><span class="badge bg-light text-dark border">{{ appt.specialization }}</span></td>
+                <td>{{ appt.clinic_hospital or 'Clinic' }}</td>
+                <td class="small text-muted">{{ appt.purpose or 'Checkup' }}</td>
+                <td>
+                  {% if appt.status == 'Completed' %}
+                    <span class="badge-status badge-status-taken">Completed</span>
+                  {% elif appt.status == 'Cancelled' %}
+                    <span class="badge-status badge-status-missed">Cancelled</span>
+                  {% else %}
+                    <span class="badge-status badge-status-scheduled">{{ appt.status }}</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <form action="{{ url_for('delete_appointment', appt_id=appt.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove appointment record?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Record">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No past appointment history recorded.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     NEW APPOINTMENT MODAL
+     ========================================== -->
+<div class="modal fade" id="newAppointmentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="{{ url_for('add_appointment') }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-calendar-plus me-2 text-teal"></i>Schedule Doctor Appointment
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Doctor Name *</label>
+              <input type="text" name="doctor_name" class="form-control" placeholder="e.g. Dr. K. Subramanian" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Specialization *</label>
+              <input type="text" name="specialization" class="form-control" placeholder="e.g. Cardiology, Geriatrics, Endocrinology" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Appointment Date *</label>
+              <input type="date" name="appointment_date" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Appointment Time *</label>
+              <input type="text" name="appointment_time" class="form-control" placeholder="e.g. 10:30 AM" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Hospital / Clinic Name &amp; Location</label>
+              <input type="text" name="clinic_hospital" class="form-control" placeholder="e.g. Apollo Speciality Hospitals, Chennai">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Consultation Purpose / Symptoms</label>
+              <textarea name="purpose" class="form-control" rows="2" placeholder="e.g. Bi-monthly blood pressure review and blood sugar test evaluation"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Clinical Notes / Preparation Instructions</label>
+              <input type="text" name="notes" class="form-control" placeholder="e.g. Fasting 10 hrs prior required for lipid panel test">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-teal">Confirm &amp; Schedule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
